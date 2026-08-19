@@ -51,7 +51,7 @@ def analyze_image(image_path):
         "detected_text": extracted_text.strip(),
         "is_valid_plate_format": is_valid_plate
     }
-
+    print(analysis)
     return True, None, analysis
 
 def process_message(ch, method, properties, body):
@@ -79,11 +79,14 @@ def process_message(ch, method, properties, body):
         success, error_msg, metrics = analyze_image(file_path)
 
         if success:
+            raw_response = json.dumps(metrics, indent=2)
             cur.execute("""
                 UPDATE image_jobs 
                 SET status = %s, analysis_results = %s, updated_at = %s 
                 WHERE id = %s
-            """, ('COMPLETED', json.dumps(metrics), datetime.now(), job_id))
+            """, ('COMPLETED', raw_response, datetime.now(), job_id))
+            print(f"[+] Raw analysis response for Job ID: {job_id}")
+            print(raw_response)
         else:
             cur.execute("""
                 UPDATE image_jobs 
