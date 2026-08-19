@@ -17,11 +17,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/images")
-@CrossOrigin(origins = {
-    "http://localhost:5173",
-    "http://localhost:4173",
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:4173"
+@CrossOrigin(originPatterns = {
+    "http://localhost:[*]",
+    "http://127.0.0.1:[*]",
+    "https://*.app.github.dev"
 })
 public class ImageController {
 

@@ -14,7 +14,10 @@ import {
 	X,
 } from 'lucide-react'
 
-const API = `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/v1/images`
+const forwardedApiOrigin = typeof window !== 'undefined' && window.location.hostname.endsWith('.app.github.dev')
+	? `https://${window.location.hostname.replace(/-\d+\.app\.github\.dev$/, '-8080.app.github.dev')}`
+	: 'http://localhost:8080'
+const API = `${(import.meta.env.VITE_API_URL || forwardedApiOrigin).replace(/\/$/, '')}/api/v1/images`
 const UPLOAD_API = `${API}/upload`
 
 const statusLabels = {
