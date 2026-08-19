@@ -17,6 +17,12 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/images")
+@CrossOrigin(origins = {
+    "http://localhost:5173",
+    "http://localhost:4173",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:4173"
+})
 public class ImageController {
 
     private final ImageJobRepository repository;
@@ -34,11 +40,15 @@ public class ImageController {
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
         UUID jobId = UUID.randomUUID();
         
-        File dir = new File(uploadDir);
-        if (!dir.exists()) dir.mkdirs();
+        File dir = new File(uploadDir).getAbsoluteFile();
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw new IOException("Could not create upload directory: " + dir);
+        }
 
-        String filePath = uploadDir + jobId + "_" + file.getOriginalFilename();
-        file.transferTo(new File(filePath));
+        String originalFilename = new File(file.getOriginalFilename()).getName();
+        File destination = new File(dir, jobId + "_" + originalFilename);
+        String filePath = destination.getAbsolutePath();
+        file.transferTo(destination);
 
         ImageJob job = ImageJob.builder()
                 .id(jobId)
