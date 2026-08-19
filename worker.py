@@ -23,19 +23,22 @@ def analyze_image(image_path):
     # Check 1: Blur Detection (Variance of Laplacian)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blur_score = cv2.Laplacian(gray, cv2.CV_64F).var()
-    is_blurry = blur_score < 100.0
+    is_blurry = bool(blur_score < 100.0)
 
     # Check 2: Brightness / Low-Light
     brightness_score = float(gray.mean())
-    is_low_light = brightness_score < 40.0
+    is_low_light = bool(brightness_score < 40.0)
 
     # Check 3: Dimension & Aspect Ratio (Screenshot detection heuristic)
     height, width, _ = image.shape
     aspect_ratio = float(width) / height
-    is_suspected_screenshot = width < 500 or height < 500 or aspect_ratio > 2.2
+    is_suspected_screenshot = bool(width < 500 or height < 500 or aspect_ratio > 2.2)
 
     # Check 4: Indian License Plate Validation
-    extracted_text = pytesseract.image_to_string(gray)
+    try:
+        extracted_text = pytesseract.image_to_string(gray)
+    except pytesseract.TesseractNotFoundError:
+        extracted_text = ""
     plate_pattern = r'[A-Z]{2}\s?[0-9]{1,2}\s?[A-Z]{1,2}\s?[0-9]{4}'
     is_valid_plate = bool(re.search(plate_pattern, extracted_text))
 
