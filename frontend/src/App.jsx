@@ -14,7 +14,8 @@ import {
 	X,
 } from 'lucide-react'
 
-const API = 'http://localhost:8080/api/v1/images'
+const API = `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/v1/images`
+const UPLOAD_API = `${API}/upload`
 
 const statusLabels = {
 	IDLE: 'Awaiting image',
@@ -61,7 +62,7 @@ export function App() {
 		const poll = async () => {
 			try {
 				const response = await fetch(`${API}/${job.jobId}/status`)
-				if (!response.ok) throw new Error('Could not read job status.')
+				if (!response.ok) throw new Error(`Could not read job status (${response.status}).`)
 				setJob(await response.json())
 			} catch (pollError) {
 				setError(pollError.message)
@@ -75,7 +76,7 @@ export function App() {
 		if (job?.status !== 'COMPLETED') return
 		fetch(`${API}/${job.jobId}/results`)
 			.then((response) => {
-				if (!response.ok) throw new Error('Could not load analysis results.')
+				if (!response.ok) throw new Error(`Could not load analysis results (${response.status}).`)
 				return response.json()
 			})
 			.then((data) => {
@@ -107,8 +108,8 @@ export function App() {
 		const body = new FormData()
 		body.append('file', file)
 		try {
-			const response = await fetch(`${API}/upload`, { method: 'POST', body })
-			if (!response.ok) throw new Error('Upload failed. Check that the backend is running.')
+			const response = await fetch(UPLOAD_API, { method: 'POST', body })
+			if (!response.ok) throw new Error(`Upload failed (${response.status}). Check that the backend is running.`)
 			setJob(await response.json())
 		} catch (uploadError) {
 			setJob(null)
