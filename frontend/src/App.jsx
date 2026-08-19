@@ -3,6 +3,7 @@ import {
 	AlertTriangle,
 	ArrowUpRight,
 	Check,
+	Clipboard,
 	ChevronDown,
 	CircleDashed,
 	FileImage,
@@ -36,7 +37,7 @@ function formatValue(value) {
 
 function Metric({ icon: Icon, label, value, good, detail }) {
 	return (
-		<article className="metric-card">
+		<article className={`metric-card ${good ? 'metric-good' : 'metric-review'}`} tabIndex="0">
 			<Icon className="metric-icon" size={19} />
 			{good ? <Check className="metric-check check-good" size={18} /> : <AlertTriangle className="metric-check check-alert" size={18} />}
 			<div className="metric-copy">
@@ -56,6 +57,7 @@ export function App() {
 	const [error, setError] = useState('')
 	const [dragging, setDragging] = useState(false)
 	const [rawOpen, setRawOpen] = useState(false)
+	const [copied, setCopied] = useState(false)
 	const inputRef = useRef(null)
 
 	useEffect(() => () => preview && URL.revokeObjectURL(preview), [preview])
@@ -122,7 +124,14 @@ export function App() {
 
 	const reset = () => {
 		if (preview) URL.revokeObjectURL(preview)
-		setFile(null); setPreview(''); setJob(null); setResults(null); setError(''); setRawOpen(false)
+		setFile(null); setPreview(''); setJob(null); setResults(null); setError(''); setRawOpen(false); setCopied(false)
+	}
+
+	const copyRawResponse = async () => {
+		if (!results) return
+		await navigator.clipboard.writeText(JSON.stringify(results, null, 2))
+		setCopied(true)
+		setTimeout(() => setCopied(false), 1600)
 	}
 
 	const status = job?.status ?? 'IDLE'
@@ -146,7 +155,7 @@ export function App() {
 				</div>
 				<div className="status-panel"><div className="section-label"><span>02</span> Pipeline status</div><div className="status-heading"><div className={`status-badge status-${status.toLowerCase()}`}><span />{statusLabels[status]}</div><small>{job?.jobId ? `ID ${job.jobId.slice(0, 8)}` : 'No active job'}</small></div><div className="progress-track"><div className={`progress-fill ${status.toLowerCase()}`} /></div><div className="status-steps">{['Upload', 'Queue', 'Analyse', 'Result'].map((step, index) => <div className={`step ${index <= (status === 'COMPLETED' ? 3 : status === 'PROCESSING' ? 2 : status === 'PENDING' ? 1 : 0) && status !== 'IDLE' ? 'active' : ''}`} key={step}><span>{index + 1}</span><p>{step}</p></div>)}</div>{status === 'IDLE' && <div className="empty-status"><CircleDashed size={28} /><p>Your analysis status will<br />appear here.</p></div>}{status === 'FAILED' && <div className="empty-status"><AlertTriangle size={28} /><p>{job.failureReason || 'The analysis could not be completed.'}</p></div>}</div>
 			</section>
-			{results && <section className="results-section"><div className="results-header"><div><div className="section-label"><span>03</span> Analysis results</div><h2>Image intelligence</h2></div><div className="result-stamp"><Check size={14} /> Analysis complete</div></div><div className="metrics-grid">{metrics.map((metric) => <Metric key={metric.label} {...metric} />)}</div><div className="raw-details"><button onClick={() => setRawOpen(!rawOpen)}>Raw response <ChevronDown className={rawOpen ? 'rotate' : ''} size={14} /></button>{rawOpen && <pre>{JSON.stringify(results, null, 2)}</pre>}</div></section>}
+			{results && <section className="results-section"><div className="results-header"><div><div className="section-label"><span>03</span> Analysis results</div><h2>Image intelligence</h2></div><div className="result-stamp"><Check size={14} /> Analysis complete</div></div><div className="metrics-grid">{metrics.map((metric) => <Metric key={metric.label} {...metric} />)}</div><div className={`raw-details ${rawOpen ? 'is-open' : ''}`}><div className="raw-toolbar"><button onClick={() => setRawOpen(!rawOpen)} aria-expanded={rawOpen}>Raw response <ChevronDown className={rawOpen ? 'rotate' : ''} size={14} /></button><button className="copy-button" onClick={copyRawResponse} aria-label="Copy raw response"><Clipboard size={13} /> {copied ? 'Copied' : 'Copy'}</button></div>{rawOpen && <pre>{JSON.stringify(results, null, 2)}</pre>}</div></section>}
 			<footer><span>GINGER<span>MEDIA</span></span><span>Image intelligence pipeline <b>•</b> local instance</span></footer>
 		</main>
 	)

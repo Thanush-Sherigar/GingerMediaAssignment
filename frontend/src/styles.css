@@ -85,3 +85,24 @@ footer span:first-child, footer b { color: #718d5d; }
 	.intro { padding: 52px 0 44px; }
 	.status-panel { border-top-color: #dfe3de; }
 }
+
+.results-section { animation: results-in .45s ease both; }
+.metric-card { overflow: hidden; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+.metric-card::after { content: ''; position: absolute; inset: auto -22px -34px auto; width: 82px; height: 82px; border-radius: 50%; background: #edf3e9; opacity: 0; transition: opacity .2s ease, transform .2s ease; }
+.metric-card:hover, .metric-card:focus-visible { border-color: #b6c6b0; box-shadow: 0 8px 22px #718d5d18; transform: translateY(-4px); outline: none; }
+.metric-card:hover::after, .metric-card:focus-visible::after { opacity: 1; transform: scale(1.15); }
+.metric-card > * { position: relative; z-index: 1; }
+.metric-review { border-left: 3px solid #ef9b82; }
+.metric-good { border-left: 3px solid #b9d39f; }
+.metric-copy strong { transition: color .2s ease; }
+.raw-details { border-top: 1px solid transparent; transition: border-color .2s ease; }
+.raw-details.is-open { border-top-color: #dfe3de; }
+.raw-toolbar { display: flex; align-items: center; justify-content: space-between; }
+.raw-details button { transition: color .2s ease, background .2s ease; }
+.raw-details button:hover { color: #607a4f; }
+.copy-button { padding: 7px 9px !important; border: 1px solid #d5dbd5 !important; color: #7c857e !important; }
+.copy-button:hover { background: #edf3e9 !important; border-color: #b9c9b2 !important; }
+.raw-details pre { max-height: 280px; margin: 8px 0 0; border-radius: 2px; white-space: pre-wrap; overflow-wrap: anywhere; animation: raw-in .25s ease both; }
+@keyframes results-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes raw-in { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .results-section, .raw-details pre { animation: none; }.metric-card { transition: none; } }
