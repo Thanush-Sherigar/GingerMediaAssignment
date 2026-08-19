@@ -1,4 +1,4 @@
-# Ginger Media Image Intelligence Pipeline
+# Ginger Media Assignment
 
 An image-processing pipeline for checking vehicle image quality and extracting possible license-plate text.
 
@@ -18,23 +18,15 @@ The project has three parts:
 6. The worker stores the response in PostgreSQL and marks the job `COMPLETED` or `FAILED`.
 7. The frontend polls the job and displays the results, including the expandable raw response.
 
-## Requirements
-
-- Java 17 or newer
-- Maven, or the included Maven wrapper
-- Python 3.10 or newer
-- Node.js and npm
-- Docker and Docker Compose
-- Native Tesseract OCR
 
 ## Start Supporting Services
 
 From the `gingermedia` directory:
 
-```bash
+
 cd gingermedia
 docker compose up -d
-```
+
 
 This starts:
 
@@ -44,41 +36,41 @@ This starts:
 
 The default local database settings are:
 
-```text
+
 Database: mediadb
 Username: postgres
 Password: postgrespassword
-```
+
 
 ## Install Python Dependencies
 
 From the repository root:
 
-```bash
+
 python -m pip install pika psycopg2-binary opencv-python pytesseract numpy
-```
+
 
 Install Tesseract on Ubuntu/Debian:
 
-```bash
+
 sudo apt-get update
 sudo apt-get install -y tesseract-ocr
-```
+
 
 Check the OCR installation:
 
-```bash
+
 tesseract --version
-```
+
 
 ## Run the Backend
 
 In a terminal:
 
-```bash
+
 cd gingermedia
 ./mvnw spring-boot:run
-```
+
 
 The API runs at `http://localhost:8080`.
 
@@ -86,19 +78,19 @@ The API runs at `http://localhost:8080`.
 
 In a second terminal from the repository root:
 
-```bash
+
 python worker.py
-```
+
 
 You should see:
 
-```text
+
 [*] Python OpenCV Worker Waiting for Messages. To exit press CTRL+C
-```
+
 
 When a job completes, the worker prints a formatted raw response like this:
 
-```text
+
 [+] Raw analysis response for Job ID: <job-id>
 {
 	"blur_score": 1483.27,
@@ -109,7 +101,7 @@ When a job completes, the worker prints a formatted raw response like this:
 	"detected_text": "...",
 	"is_valid_plate_format": false
 }
-```
+
 
 ## Run the Frontend
 
