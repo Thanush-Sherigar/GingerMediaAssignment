@@ -10,15 +10,15 @@ The project has three parts:
 
 ## Why RabbitMQ + Python worker?
 
-We chose RabbitMQ plus a small Python worker process rather than an in-memory queue or a single-language monolith for a few practical reasons:
+We chose RabbitMQ with a small Python worker instead of an in-memory queue or a single-language application for a few practical reasons:
 
-- Decoupling and resilience: a message broker isolates the web/API process from long-running CPU-bound image analysis. If the backend crashes or is redeployed, queued jobs remain safe in RabbitMQ instead of being lost with an in-memory queue.
-- Language fit: Python has a rich ecosystem for image processing and OCR (OpenCV, pytesseract, NumPy) and is fast to iterate on for this kind of task. Keeping the backend in Java for API/DB concerns and the worker in Python lets each part use the best tool for the job.
-- Scalability: RabbitMQ makes it easy to run multiple workers in parallel to consume jobs when throughput increases. An in-memory queue tied to a single process can't be shared between machines or containers without additional work.
-- Observability & delivery guarantees: RabbitMQ provides delivery acknowledgements, retries, and a management UI for monitoring queues. Implementing similar guarantees correctly in an in-memory queue or ad-hoc retry logic is error-prone.
-- Failure isolation: heavy image analysis and native dependencies (like Tesseract) can be kept outside the API process so worker crashes, memory growth, or native package issues don't bring down the whole service.
+Better reliability: RabbitMQ keeps jobs safe even if the Java backend crashes or is restarted.
+Best tool for the job: Java handles the API and database, while Python handles image processing and OCR using tools like OpenCV, Tesseract, and NumPy.
+Easy to scale: We can run multiple Python workers at the same time when the workload increases.
+Reliable processing: RabbitMQ supports acknowledgements, retries, and monitoring through its management UI.
+Failure isolation: If image processing or Tesseract crashes, it won't bring down the main API.
 
-In short: using RabbitMQ plus a small Python worker gives us durability, easier scaling, safer operations, and the ability to use Python's strong image/OCR tooling without forcing the entire project into a single language or single process.
+In short: RabbitMQ gives us reliable and scalable job processing, while Python provides the right tools for image and OCR tasks. This keeps the system more reliable, scalable, and easier to maintain.
 
 ## How It Works
 
