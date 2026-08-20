@@ -8,6 +8,18 @@ The project has three parts:
 - **Backend:** Spring Boot API that stores jobs in PostgreSQL and publishes them to RabbitMQ.
 - **Worker:** A separate Python process that reads RabbitMQ jobs, analyses images with OpenCV and Tesseract, and saves the results.
 
+## Why RabbitMQ + Python worker?
+
+We chose RabbitMQ plus a small Python worker process rather than an in-memory queue or a single-language monolith for a few practical reasons:
+
+- Decoupling and resilience: a message broker isolates the web/API process from long-running CPU-bound image analysis. If the backend crashes or is redeployed, queued jobs remain safe in RabbitMQ instead of being lost with an in-memory queue.
+- Language fit: Python has a rich ecosystem for image processing and OCR (OpenCV, pytesseract, NumPy) and is fast to iterate on for this kind of task. Keeping the backend in Java for API/DB concerns and the worker in Python lets each part use the best tool for the job.
+- Scalability: RabbitMQ makes it easy to run multiple workers in parallel to consume jobs when throughput increases. An in-memory queue tied to a single process can't be shared between machines or containers without additional work.
+- Observability & delivery guarantees: RabbitMQ provides delivery acknowledgements, retries, and a management UI for monitoring queues. Implementing similar guarantees correctly in an in-memory queue or ad-hoc retry logic is error-prone.
+- Failure isolation: heavy image analysis and native dependencies (like Tesseract) can be kept outside the API process so worker crashes, memory growth, or native package issues don't bring down the whole service.
+
+In short: using RabbitMQ plus a small Python worker gives us durability, easier scaling, safer operations, and the ability to use Python's strong image/OCR tooling without forcing the entire project into a single language or single process.
+
 ## How It Works
 
 1. Select an image in the frontend.
