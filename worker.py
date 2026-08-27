@@ -4,15 +4,16 @@ import json
 import cv2
 import re
 import pytesseract
+import os
 from datetime import datetime
 
 # DB Setup
 DB_CONFIG = {
-    "dbname": "mediadb",
-    "user": "postgres",
-    "password": "postgrespassword",
-    "host": "localhost",
-    "port": "5432"
+    "dbname": os.getenv("DB_NAME", "mediadb"),
+    "user": os.getenv("DB_USER", "postgres"),
+    "password": os.getenv("DB_PASSWORD", "postgrespassword"),
+    "host": os.getenv("DB_HOST", "localhost"),
+    "port": os.getenv("DB_PORT", "5432")
 }
 
 def analyze_image(image_path):
@@ -113,7 +114,9 @@ def process_message(ch, method, properties, body):
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
 def main():
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    connection = pika.BlockingConnection(
+        pika.ConnectionParameters(host=os.getenv("RABBITMQ_HOST", "localhost"))
+    )
     channel = connection.channel()
     channel.queue_declare(queue='image_processing_queue', durable=True)
     

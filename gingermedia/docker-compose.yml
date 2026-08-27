@@ -39,6 +39,9 @@ services:
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
+      FILE_UPLOAD_DIR: /app/uploads
+    volumes:
+      - ../uploads:/app/uploads
     ports:
       - "8080:8080"
     depends_on:
@@ -69,6 +72,8 @@ services:
       DB_USER: postgres
       DB_PASSWORD: postgrespassword
       RABBITMQ_HOST: rabbitmq
+    volumes:
+      - ../uploads:/app/uploads
     depends_on:
       - postgres
       - rabbitmq
